@@ -120,9 +120,6 @@ class Simple_Sidebars {
       </script>
     <?php
   }
-New Widget Name
-Create New Widget
-Create Custom Widget
 
   /**
 	 * Function to add all needed assets when used.

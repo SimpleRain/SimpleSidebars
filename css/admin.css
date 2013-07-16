@@ -1,0 +1,46 @@
+
+#simple-add-widget .simple-sidebar-area-delete{
+	position: absolute;
+	right: 50px;
+	margin-top: -28px;
+	display: block;
+	height: 26px;
+	width: 26px;
+	z-index: 100;
+	background: transparent url(../assets/trash.png) no-repeat top left;
+}
+
+#simple-add-widget .simple-sidebar-area-delete:hover{
+	background: transparent url(../assets/trash.png) no-repeat bottom left;
+	cursor: pointer;
+	margin-top: -30px;
+}
+
+#simple-add-widget .activate_spinner{
+	display: block !important;
+	position: absolute;
+	top: 10px;
+	right: 4px;
+	background-color: #ECECEC;
+}
+
+#simple-add-widget form {
+	text-align: center;
+}
+
+#sidebar-simple-custom, #sidebar-simple-custom h3 {
+	position: relative;
+}
+
+#simple-add-widget p {
+	margin-top: 0;
+}
+#simple-add-widget {
+	width: 285px;
+	margin: 0 auto;
+	position: relative;
+}
+
+#simple-add-widget #simple-add-widget-input { 
+	max-width: 95%; 
+}

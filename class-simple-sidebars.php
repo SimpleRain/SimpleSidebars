@@ -3,10 +3,10 @@
  * Plugin Name.
  *
  * @package   Simple_Sidebars
- * @author    Your Name <email@example.com>
- * @license   GPL-2.0+
- * @link      http://example.com
- * @copyright 2013 Your Name or Company Name
+ * @author    Dovy Paukstys <dovy@simplerain.com>
+ * @license   GPL-3.0+
+ * @link      http://simplerain.com
+ * @copyright 2013 SimpleRain
  */
 
 /**
@@ -15,7 +15,7 @@
  * TODO: Rename this class to a proper name for your plugin.
  *
  * @package Simple_Sidebars
- * @author  Your Name <email@example.com>
+ * @author  Dovy Paukstys <dovy@simplerain.com>
  */
 class Simple_Sidebars {
 
@@ -120,7 +120,10 @@ class Simple_Sidebars {
       </script>
     <?php
   }
- 
+New Widget Name
+Create New Widget
+Create Custom Widget
+
   /**
 	 * Function to add all needed assets when used.
 	 *
@@ -331,6 +334,7 @@ class Simple_Sidebars {
 
 		load_textdomain( $domain, WP_LANG_DIR . '/' . $domain . '/' . $domain . '-' . $locale . '.mo' );
 		load_plugin_textdomain( $domain, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
+		
 	}
 
 	/**

@@ -41,7 +41,7 @@
           type: "POST",
           url: window.ajaxurl,
           data: {
-             action: 'avia_ajax_delete_custom_sidebar',
+             action: 'wp_ajax_delete_simple_sidebar',
              name: widget_name,
              _wpnonce: obj.nonce
           },

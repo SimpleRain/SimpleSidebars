@@ -1,5 +1,5 @@
 
-#simple-add-widget .simple-sidebar-area-delete{
+.simple-sidebar-area-delete{
 	position: absolute;
 	right: 50px;
 	margin-top: -28px;
@@ -10,13 +10,13 @@
 	background: transparent url(../assets/trash.png) no-repeat top left;
 }
 
-#simple-add-widget .simple-sidebar-area-delete:hover{
+.simple-sidebar-area-delete:hover{
 	background: transparent url(../assets/trash.png) no-repeat bottom left;
 	cursor: pointer;
 	margin-top: -30px;
 }
 
-#simple-add-widget .activate_spinner{
+.activate_spinner{
 	display: block !important;
 	position: absolute;
 	top: 10px;
@@ -41,6 +41,6 @@
 	position: relative;
 }
 
-#simple-add-widget #simple-add-widget-input { 
+#simple-add-widget-input { 
 	max-width: 95%; 
 }

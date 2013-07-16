@@ -77,19 +77,24 @@ class Simple_Sidebars {
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
 
-		// Cool
+		// Additional hooks and items.
     add_action('load-widgets.php', array(&$this, 'load_assets') , 5 );
     add_action('widgets_init', array(&$this, 'register_custom_sidebars') , 1000 );
-    add_action('wp_ajax_avia_ajax_delete_custom_sidebar', array(&$this, 'delete_sidebar_area') , 1000 );
+    add_action('wp_ajax_delete_simple_sidebar', array(&$this, 'delete_sidebar_area') , 1000 );
 
-    $this->title = __('Create Custom Widget', 's');
+    $this->title = __('Create Custom Widget', $this->plugin_slug);
 
 	}
 
 
-	    // html template for the widget add form
+  /**
+	 * Function to create the HTML used to create sidebars.
+	 *
+	 * @since     1.0.0
+	 *
+	 */  
   public function add_new_widget_area_box() {
-    $nonce =  wp_create_nonce ('delete-a-custom-sidebar-nonce');
+    $nonce =  wp_create_nonce ('delete-simple-sidebar-nonce');
     ?>
       <script type="text/html" id="simple-add-widget-template">
         <input type="hidden" name="simple-nonce" value="<?php echo $nonce ?>" />
@@ -117,137 +122,162 @@ class Simple_Sidebars {
   }
 
  
-    // We need some custom HTML and JS for this to work
-    function load_assets() {
-      add_action('admin_print_scripts', array(&$this, 'template_add_widget_field') );
-      add_action('load-widgets.php', array(&$this, 'add_sidebar_area'), 100);
+  /**
+	 * Function to add all needed assets when used.
+	 *
+	 * @since     1.0.0
+	 *
+	 */  
+  function load_assets() {
 
-			wp_enqueue_script('Simple_Sidebars' , plugins_url( 'js/admin.js', __FILE__ ), array(), $this->version );  
-			wp_enqueue_style('Simple_Sidebars' , plugins_url( 'css/admin.css', __FILE__ ), array(), $this->version );  
+    add_action('admin_print_scripts', array(&$this, 'add_new_widget_area_box') );
+    add_action('load-widgets.php', array(&$this, 'add_sidebar_area'), 100);
 
-    }
-    
-    // html template for the widget add form
-    function template_add_widget_field() {
-      $nonce =  wp_create_nonce ('delete-custom-simple-sidebar-nonce');
-      ?>
-        <script type="text/html" id="simple-add-widget-template">
-          <input type="hidden" name="simple-nonce" value="<?php echo $nonce ?>" />
-          <div id="simple-add-widget" class="widgets-holder-wrap">
-            <div class="sidebar-name" style="cursor: inherit;">
-              <h3><?php echo $this->title; ?> <span class="spinner"></span></h3>
-            </div>
-            <div id="jumbotron" class="widgets-sortables ui-sortable" style="min-height: 50px;">
-              <form action="" method="post">
-                <div class="widget-content">
-                  <p style="font-weight: bold;"><label for="simple-add-widget-input"><?php echo __('New Widget Name', 'simple_options_framework'); ?>:</label>
-                  <input id="simple-add-widget-input" name="simple-add-widget-input" type="text" class="regular-text" title="<?php echo __('New Widget Name', 'simple_options_framework'); ?>" />
-                </div>
-                <div class="widget-control-actions">
-                  <div class="aligncenter">
-                    <input class="button-primary" type="submit" value="<?php echo __('Create New Widget', 'simple_options_framework'); ?>" />
-                  </div>
-                  <br class="clear">
-                </div>
-              </form>
-            </div>
-          </div>
-        </script>
-      <?php
-    }
-    
-    // Let's add a new sidebar
-    function add_sidebar_area() {
-      if(!empty($_POST['simple-add-widget-input'])) {
-          $this->sidebars = get_option($this->plugin_slug);
-          $name           = $this->get_name($_POST['simple-add-widget-input']);
-          
-          if(empty($this->sidebars)) {
-              $this->sidebars = array($name);
-          } else {
-              $this->sidebars = array_merge($this->sidebars, array($name));
-          }
-          
-          update_option($this->plugin_slug, $this->sidebars);
-          wp_redirect( admin_url('widgets.php') );
-          die();
-      }
-    }
-    
-    // Let's delete a sidebar
-    function delete_sidebar_area() {
-      check_ajax_referer('delete-custom-simple-sidebar-nonce');
-    
-      if(!empty($_POST['name'])) {
-          $name = stripslashes($_POST['name']);
-          $this->sidebars = get_option($this->plugin_slug);
-          
-          if(($key = array_search($name, $this->sidebars)) !== false) {
-              unset($this->sidebars[$key]);
-              update_option($this->plugin_slug, $this->sidebars);
-              echo "sidebar-deleted";
-          }
-      }
-      
-      die();
-    }
-    
-    
-    
-    // makes sure the same named sidebar doesn't exist
-    function get_name($name) {
-      if(empty($GLOBALS['wp_registered_sidebars'])) 
-        return $name;
+    add_action('load-widgets.php', array(&$this, 'enqueue_admin_styles'), 100);
+    add_action('load-widgets.php', array(&$this, 'enqueue_admin_scripts'), 100);
+
+  }
+
   
-      $taken = array();
-      foreach ( $GLOBALS['wp_registered_sidebars'] as $sidebar ) {
-        $taken[] = $sidebar['name'];
-      }
-      
-      if(empty($this->sidebars)) 
-        $this->sidebars = array();
-      
-      $taken = array_merge($taken, $this->sidebars);
-      
-      if(in_array($name, $taken)) {
-        $counter  = substr($name, -1);  
-        $new_name = "";
-            
-        if(!is_numeric($counter)) {
-          $new_name = $name . " 1";
+  /**
+	 * Function to create a new sidebar
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param    string    Name of the sidebar to be deleted.
+	 *
+	 * @return    string     'sidebar-deleted' if successful.
+	 *
+	 */
+  function add_sidebar_area() {
+    if(!empty($_POST['simple-add-widget-input'])) {
+        $this->sidebars = get_theme_mod($this->plugin_slug);
+        $name           = $this->check_sidebar_name($_POST['simple-add-widget-input']);
+        
+        if(empty($this->sidebars)) {
+            $this->sidebars = array($name);
         } else {
-          $new_name = substr($name, 0, -1) . ((int) $counter + 1);
+            $this->sidebars = array_merge($this->sidebars, array($name));
         }
         
-        $name = $this->get_name($new_name);
-      }
-      
-      return $name;
+        set_theme_mod($this->plugin_slug, $this->sidebars);
+        wp_redirect( admin_url('widgets.php') );
+        die();
+    }
+  }
+  
+  /**
+	 * Before we create a new sidebar, verify it doesn't already exist. If it does, append a number to the name.
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param    string    Name of the sidebar to be deleted.
+	 *
+	 * @return    string     'sidebar-deleted' if successful.
+	 *
+	 */
+  function delete_sidebar_area() {
+    check_ajax_referer('delete-simple-sidebar-nonce');
+  
+    if(!empty($_POST['name'])) {
+        $name = stripslashes($_POST['name']);
+        $this->sidebars = get_theme_mod($this->plugin_slug);
+        print_r($this->sidebars);
+        if(($key = array_search($name, $this->sidebars)) !== false) {
+            unset($this->sidebars[$key]);
+            set_theme_mod($this->plugin_slug, $this->sidebars);
+            echo "sidebar-deleted";
+        }
     }
     
-    // Let's register those custom sidebars
-    function register_custom_sidebars() {
-      if(empty($this->sidebars)) $this->sidebars = get_option($this->plugin_slug);
+    die();
+  }
+  
+  
+  
+	/**
+	 * Before we create a new sidebar, verify it doesn't already exist. If it does, append a number to the name.
+	 *
+	 * @since     1.0.0
+	 *
+	 * @param    string    $name    Name of the sidebar to be created.
+	 *
+	 * @return    name     $name 	  Name of the new sidebar just created.
+	 *
+	 */
+  function check_sidebar_name($name) {
+    if(empty($GLOBALS['wp_registered_sidebars'])) 
+      return $name;
 
-      $options = array(
-        'before_title'  => '<h3 class="widgettitle">', 
-        'after_title'   => '</h3>',
-        'before_widget' => '<div id="%1$s" class="widget clearfix %2$s">', 
-        'after_widget'  => '</div>'
-        );
-        
-      $options = apply_filters('simple_custom_widget_args', $options);
-            
-      if(is_array($this->sidebars)) {
-        foreach ($this->sidebars as $sidebar) { 
-          $options['class'] = 'simple-custom';
-          $options['name']  = $sidebar;
-          register_sidebar($options);
-        }
+    $taken = array();
+    foreach ( $GLOBALS['wp_registered_sidebars'] as $sidebar ) {
+      $taken[] = $sidebar['name'];
+    }
+    
+    if(empty($this->sidebars)) 
+      $this->sidebars = array();
+    
+    $taken = array_merge($taken, $this->sidebars);
+    
+    if(in_array($name, $taken)) {
+      $counter  = substr($name, -1);  
+      $new_name = "";
+          
+      if(!is_numeric($counter)) {
+        $new_name = $name . " 1";
+      } else {
+        $new_name = substr($name, 0, -1) . ((int) $counter + 1);
+      }
+      
+      $name = $this->check_sidebar_name($new_name);
+    }
+    
+    return $name;
+  }
+  
+	/**
+	 * Register and display the custom sidebar areas we have set.
+	 *
+	 * @since     1.0.0
+	 *
+	 */
+  function register_custom_sidebars() {
+    if(empty($this->sidebars)) $this->sidebars = get_theme_mod($this->plugin_slug);
+
+    $options = array(
+      'before_title'  => '<h3 class="widgettitle">', 
+      'after_title'   => '</h3>',
+      'before_widget' => '<div id="%1$s" class="widget clearfix %2$s">', 
+      'after_widget'  => '</div>'
+      );
+      
+    $options = apply_filters('simple_custom_widget_args', $options);
+          
+    if(is_array($this->sidebars)) {
+      foreach ($this->sidebars as $sidebar) { 
+        $options['class'] = 'simple-custom';
+        $options['name']  = $sidebar;
+        register_sidebar($options);
       }
     }
+  }
 
 
+	/**
+	 * Return the sidebars array.
+	 *
+	 * @since     1.0.0
+	 *
+	 * @return    array    If not empty, active simple sidebars are returned.
+	 */
+	public static function get_simple_sidebars() {
+
+		// If the single instance hasn't been set, set it now.
+		if ( !empty($this->sidebars) ) {
+			return $this->sidebars;
+		}
+
+	}
 
 
 
@@ -313,8 +343,6 @@ class Simple_Sidebars {
 	 */
 	public function enqueue_admin_styles() {
 
-		echo "STYLES!";
-
 		wp_enqueue_style( 'Simple_Sidebars', plugins_url( 'css/admin.css', __FILE__ ), array(), $this->version );		
 
 	}
@@ -330,20 +358,6 @@ class Simple_Sidebars {
 
 		wp_enqueue_script( 'Simple_Sidebars', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery' ), $this->version );
 
-	}
-
-
-	/**
-	 * NOTE:  Actions are points in the execution of a page or process
-	 *        lifecycle that WordPress fires.
-	 *
-	 *        WordPress Actions: http://codex.wordpress.org/Plugin_API#Actions
-	 *        Action Reference:  http://codex.wordpress.org/Plugin_API/Action_Reference
-	 *
-	 * @since    1.0.0
-	 */
-	public function action_method_name() {
-		// TODO: Define your action hook callback here
 	}
 
 

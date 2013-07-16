@@ -120,7 +120,6 @@ class Simple_Sidebars {
       </script>
     <?php
   }
-
  
   /**
 	 * Function to add all needed assets when used.
